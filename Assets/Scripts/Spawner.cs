@@ -24,7 +24,7 @@ public class Spawner : MonoBehaviour
 
     private void Awake()
     {
-        _pool = new ObjectPool<Cube>(CreateObject, OnGetFromPool, onReleaseToPool, OnDestroyPooledObject, 
+        _pool = new ObjectPool<Cube>(CreateObject, OnGetFromPool, OnReleaseToPool, OnDestroyPooledObject, 
             _collectionCheck, _poolCapacity, _maxPoolSize);
     }
 
@@ -50,7 +50,7 @@ public class Spawner : MonoBehaviour
         cube.transform.position = new Vector3(xSpawnPoint, _spawnHeight, zSpawnPoint);
     }
 
-    private void onReleaseToPool (Cube cube)
+    private void OnReleaseToPool (Cube cube)
     {
         cube.gameObject.SetActive(false);
     }

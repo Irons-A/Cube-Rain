@@ -15,9 +15,9 @@ public class Cube : MonoBehaviour
     private Renderer _renderer;
     private Rigidbody _rigidbody;
     private bool _isCollisionDetected = false;
-    private ObjectPool<Cube> objectPool;
+    private ObjectPool<Cube> _objectPool;
 
-    public ObjectPool<Cube> ObjectPool { set => objectPool = value; }
+    public ObjectPool<Cube> ObjectPool { set => _objectPool = value; }
 
     private void Awake()
     {
@@ -47,8 +47,8 @@ public class Cube : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
 
-        _rigidbody.velocity = new Vector3(0f, 0f, 0f);
-        _rigidbody.velocity = new Vector3(0f, 0f, 0f);
-        objectPool.Release(this);
+        _rigidbody.velocity = Vector3.zero;
+        _rigidbody.angularVelocity = Vector3.zero;
+        _objectPool.Release(this);
     }
 }
