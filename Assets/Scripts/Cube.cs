@@ -1,8 +1,10 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Pool;
+using Random = UnityEngine.Random;
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(Renderer))]
@@ -14,15 +16,16 @@ public class Cube : MonoBehaviour
 
     private Renderer _renderer;
     private Rigidbody _rigidbody;
+    private Cube _cube;
     private bool _isCollisionDetected = false;
-    private ObjectPool<Cube> _objectPool;
 
-    public ObjectPool<Cube> ObjectPool { set => _objectPool = value; }
+    public event Action<Cube> LifetimeExpired;
 
     private void Awake()
     {
         _renderer = GetComponent<Renderer>();
         _rigidbody = GetComponent<Rigidbody>();
+        _cube = GetComponent<Cube>();
     }
 
     private void OnEnable()
@@ -33,7 +36,7 @@ public class Cube : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.TryGetComponent(out Platform platform) && !_isCollisionDetected)
+        if (!_isCollisionDetected && collision.gameObject.TryGetComponent(out Platform platform))
         {
             float delay = Random.Range(_minLifetime, _maxLifetime);
 
@@ -49,6 +52,6 @@ public class Cube : MonoBehaviour
 
         _rigidbody.velocity = Vector3.zero;
         _rigidbody.angularVelocity = Vector3.zero;
-        _objectPool.Release(this);
+        LifetimeExpired?.Invoke(_cube);
     }
 }

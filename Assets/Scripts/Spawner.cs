@@ -21,11 +21,28 @@ public class Spawner : MonoBehaviour
 
     private ObjectPool<Cube> _pool;
     private WaitForSeconds _spawnFrequency;
+    private List<Cube> _cubes = new List<Cube>();
 
     private void Awake()
     {
         _pool = new ObjectPool<Cube>(CreateObject, OnGetFromPool, OnReleaseToPool, OnDestroyPooledObject, 
             _collectionCheck, _poolCapacity, _maxPoolSize);
+    }
+
+    private void OnEnable()
+    {
+        foreach (var item in _cubes)
+        {
+            item.LifetimeExpired += OnReleaseToPool;
+        }
+    }
+
+    private void OnDisable()
+    {
+        foreach (var item in _cubes)
+        {
+            item.LifetimeExpired -= OnReleaseToPool;
+        }
     }
 
     private void Start()
@@ -37,7 +54,8 @@ public class Spawner : MonoBehaviour
     private Cube CreateObject()
     {
         Cube cubeInstance = Instantiate(_prefab);
-        cubeInstance.ObjectPool = _pool;
+        cubeInstance.LifetimeExpired += OnReleaseToPool;
+        _cubes.Add(cubeInstance);
         return cubeInstance;
     }
 
