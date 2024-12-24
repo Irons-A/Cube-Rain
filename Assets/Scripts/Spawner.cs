@@ -19,6 +19,8 @@ public class Spawner : MonoBehaviour
     [SerializeField] private float _minZSpawnPoint = -5f;
     [SerializeField] private float _maxZSpawnPoint = 5f;
 
+    private int _objectCount = 0;
+
     private ObjectPool<Cube> _pool;
     private WaitForSeconds _spawnFrequency;
     private List<Cube> _cubes = new List<Cube>();
@@ -33,7 +35,7 @@ public class Spawner : MonoBehaviour
     {
         foreach (var item in _cubes)
         {
-            item.LifetimeExpired += OnReleaseToPool;
+            item.LifetimeExpired += ReleaseObject;
         }
     }
 
@@ -41,7 +43,7 @@ public class Spawner : MonoBehaviour
     {
         foreach (var item in _cubes)
         {
-            item.LifetimeExpired -= OnReleaseToPool;
+            item.LifetimeExpired -= ReleaseObject;
         }
     }
 
@@ -54,7 +56,7 @@ public class Spawner : MonoBehaviour
     private Cube CreateObject()
     {
         Cube cubeInstance = Instantiate(_prefab);
-        cubeInstance.LifetimeExpired += OnReleaseToPool;
+        cubeInstance.LifetimeExpired += ReleaseObject;
         _cubes.Add(cubeInstance);
         return cubeInstance;
     }
@@ -76,6 +78,11 @@ public class Spawner : MonoBehaviour
     private void OnDestroyPooledObject(Cube cube)
     {
         Destroy(cube.gameObject);
+    }
+
+    private void ReleaseObject(Cube cube)
+    {
+        _pool.Release(cube);
     }
 
     private IEnumerator SpawnRoutine()

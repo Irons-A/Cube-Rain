@@ -16,7 +16,6 @@ public class Cube : MonoBehaviour
 
     private Renderer _renderer;
     private Rigidbody _rigidbody;
-    private Cube _cube;
     private bool _isCollisionDetected = false;
 
     public event Action<Cube> LifetimeExpired;
@@ -25,7 +24,6 @@ public class Cube : MonoBehaviour
     {
         _renderer = GetComponent<Renderer>();
         _rigidbody = GetComponent<Rigidbody>();
-        _cube = this;
     }
 
     private void OnEnable()
@@ -36,14 +34,19 @@ public class Cube : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (!_isCollisionDetected && collision.gameObject.TryGetComponent(out Platform platform))
+        if (_isCollisionDetected == false && collision.gameObject.TryGetComponent(out Platform platform))
         {
             float delay = Random.Range(_minLifetime, _maxLifetime);
 
             _isCollisionDetected = true;
-            _renderer.material.color = Random.ColorHSV();
+            ChangeColor();
             StartCoroutine(DeactivateRoutine(delay));
         }
+    }
+
+    private void ChangeColor()
+    {
+        _renderer.material.color = Random.ColorHSV();
     }
 
     private IEnumerator DeactivateRoutine(float delay)
@@ -52,6 +55,6 @@ public class Cube : MonoBehaviour
 
         _rigidbody.velocity = Vector3.zero;
         _rigidbody.angularVelocity = Vector3.zero;
-        LifetimeExpired?.Invoke(_cube);
+        LifetimeExpired?.Invoke(this);
     }
 }

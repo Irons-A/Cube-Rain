@@ -172,7 +172,7 @@ MonoBehaviour:
   _spawnRate: 0.33
   _collectionCheck: 1
   _poolCapacity: 10
-  _maxPoolSize: 20
+  _maxPoolSize: 10
   _spawnHeight: 10
   _minXSpawnPoint: -5
   _maxXSpawnPoint: 5
