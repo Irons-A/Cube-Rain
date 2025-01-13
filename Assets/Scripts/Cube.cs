@@ -6,24 +6,19 @@ using UnityEngine;
 using UnityEngine.Pool;
 using Random = UnityEngine.Random;
 
-[RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(Renderer))]
 
-public class Cube : MonoBehaviour
+public class Cube : BaseObject
 {
-    [SerializeField] private float _minLifetime = 2f;
-    [SerializeField] private float _maxLifetime = 5f;
-
     private Renderer _renderer;
-    private Rigidbody _rigidbody;
     private bool _isCollisionDetected = false;
 
-    public event Action<Cube> LifetimeExpired;
+    private BaseObject _parent;
 
     private void Awake()
     {
         _renderer = GetComponent<Renderer>();
-        _rigidbody = GetComponent<Rigidbody>();
+        _parent = GetComponentInParent<BaseObject>();
     }
 
     private void OnEnable()
@@ -55,6 +50,6 @@ public class Cube : MonoBehaviour
 
         _rigidbody.velocity = Vector3.zero;
         _rigidbody.angularVelocity = Vector3.zero;
-        LifetimeExpired?.Invoke(this);
+        CommandRelease(this);
     }
 }

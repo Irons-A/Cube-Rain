@@ -5,87 +5,73 @@ using UnityEngine;
 using UnityEngine.Pool;
 using Random = UnityEngine.Random;
 
-public class Spawner : MonoBehaviour
+public abstract class Spawner : MonoBehaviour
 {
-    [SerializeField] private Cube _prefab;
-    [SerializeField] private bool _isSpawnerActive = false;
-    [SerializeField] private float _spawnRate = 1f;
-    [SerializeField] private bool _collectionCheck = true;
-    [SerializeField] private int _poolCapacity = 10;
-    [SerializeField] private int _maxPoolSize = 10;
-    [SerializeField] private float _spawnHeight = 10f;
-    [SerializeField] private float _minXSpawnPoint = -5f;
-    [SerializeField] private float _maxXSpawnPoint = 5f;
-    [SerializeField] private float _minZSpawnPoint = -5f;
-    [SerializeField] private float _maxZSpawnPoint = 5f;
+    [SerializeField] protected BaseObject _prefab;
+    [SerializeField] protected bool _isSpawnerActive = false;
+    [SerializeField] protected float _spawnRate = 1f;
+    [SerializeField] protected bool _collectionCheck = true;
+    [SerializeField] protected int _poolCapacity = 10;
+    [SerializeField] protected int _maxPoolSize = 10;
 
-    private int _objectCount = 0;
+    protected ObjectPool<BaseObject> _pool;
+    protected WaitForSeconds _spawnFrequency;
+    protected List<BaseObject> _objects = new List<BaseObject>();
 
-    private ObjectPool<Cube> _pool;
-    private WaitForSeconds _spawnFrequency;
-    private List<Cube> _cubes = new List<Cube>();
-
-    private void Awake()
+    protected void Awake()
     {
-        _pool = new ObjectPool<Cube>(CreateObject, OnGetFromPool, OnReleaseToPool, OnDestroyPooledObject, 
+        _pool = new ObjectPool<BaseObject>(CreateObject, OnGetFromPool, OnReleaseToPool, OnDestroyPooledObject,
             _collectionCheck, _poolCapacity, _maxPoolSize);
     }
 
-    private void OnEnable()
+    protected void OnEnable()
     {
-        foreach (var item in _cubes)
+        foreach (var item in _objects)
         {
             item.LifetimeExpired += ReleaseObject;
         }
     }
 
-    private void OnDisable()
+    protected void OnDisable()
     {
-        foreach (var item in _cubes)
+        foreach (var item in _objects)
         {
             item.LifetimeExpired -= ReleaseObject;
         }
     }
 
-    private void Start()
+    protected void Start()
     {
         _isSpawnerActive = true;
         StartCoroutine(SpawnRoutine());
     }
 
-    private Cube CreateObject()
+    protected BaseObject CreateObject()
     {
-        Cube cubeInstance = Instantiate(_prefab);
-        cubeInstance.LifetimeExpired += ReleaseObject;
-        _cubes.Add(cubeInstance);
-        return cubeInstance;
+        BaseObject objectInstance = Instantiate(_prefab);
+        objectInstance.LifetimeExpired += ReleaseObject;
+        _objects.Add(objectInstance);
+        return objectInstance;
     }
 
-    private void OnGetFromPool(Cube cube)
-    {
-        float xSpawnPoint = Random.Range(_minXSpawnPoint, _maxXSpawnPoint);
-        float zSpawnPoint = Random.Range(_minZSpawnPoint, _maxZSpawnPoint);
+    protected abstract void OnGetFromPool(BaseObject objectUnit);
 
-        cube.gameObject.SetActive(true);
-        cube.transform.position = new Vector3(xSpawnPoint, _spawnHeight, zSpawnPoint);
+    protected void OnReleaseToPool(BaseObject objectUnit)
+    {
+        objectUnit.gameObject.SetActive(false);
     }
 
-    private void OnReleaseToPool (Cube cube)
+    protected void OnDestroyPooledObject(BaseObject objectUnit)
     {
-        cube.gameObject.SetActive(false);
+        Destroy(objectUnit.gameObject);
     }
 
-    private void OnDestroyPooledObject(Cube cube)
+    protected void ReleaseObject(BaseObject objectUnit)
     {
-        Destroy(cube.gameObject);
+        _pool.Release(objectUnit);
     }
 
-    private void ReleaseObject(Cube cube)
-    {
-        _pool.Release(cube);
-    }
-
-    private IEnumerator SpawnRoutine()
+    protected IEnumerator SpawnRoutine()
     {
         _spawnFrequency = new WaitForSeconds(_spawnRate);
 

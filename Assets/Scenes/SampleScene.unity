@@ -169,7 +169,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _prefab: {fileID: 4551805914365092353, guid: 000245070a218724c8ef69fb6eeadddb, type: 3}
   _isSpawnerActive: 0
-  _spawnRate: 0.33
+  _spawnRate: 0.5
   _collectionCheck: 1
   _poolCapacity: 10
   _maxPoolSize: 10
