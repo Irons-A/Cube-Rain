@@ -13,7 +13,7 @@ public class BaseObject : MonoBehaviour
 
     public event Action<BaseObject> LifetimeExpired;
 
-    private void Awake()
+    protected virtual void Awake()
     {
         _rigidbody = GetComponent<Rigidbody>();
     }
@@ -21,5 +21,6 @@ public class BaseObject : MonoBehaviour
     protected void CommandRelease(BaseObject objectUnit)
     {
         LifetimeExpired?.Invoke(objectUnit);
+        Debug.Log("Event Called");
     }
 }
