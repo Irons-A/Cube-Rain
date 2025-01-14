@@ -16,6 +16,7 @@ public class Cube : BaseObject
     protected override void Awake()
     {
         _renderer = GetComponent<Renderer>();
+        base.Awake();
     }
 
     private void OnEnable()
@@ -26,16 +27,9 @@ public class Cube : BaseObject
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (_rigidbody == null)
-        {
-            Debug.Log("RB NULL");
-        }
-
         if (_isCollisionDetected == false && collision.gameObject.TryGetComponent(out Platform platform))
         {
             float delay = Random.Range(_minLifetime, _maxLifetime);
-
-            Debug.Log("Platform Hit");
 
             _isCollisionDetected = true;
             ChangeColor();
@@ -50,12 +44,10 @@ public class Cube : BaseObject
 
     private IEnumerator DeactivateRoutine(float delay)
     {
-        Debug.Log("Routine Start");
         yield return new WaitForSeconds(delay);
 
         _rigidbody.velocity = Vector3.zero;
         _rigidbody.angularVelocity = Vector3.zero;
         CommandRelease(this);
-        Debug.Log("Method Called");
     }
 }

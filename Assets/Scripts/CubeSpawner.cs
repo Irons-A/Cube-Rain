@@ -13,6 +13,14 @@ public class CubeSpawner : Spawner
     [SerializeField] protected float _minZSpawnPoint = -5f;
     [SerializeField] protected float _maxZSpawnPoint = 5f;
 
+    public event Action<Vector3> ObjectDisabled;
+
+    protected override void Start()
+    {
+        StartCoroutine(SpawnRoutine());
+        base.Start();
+    }
+
     protected override void OnGetFromPool(BaseObject cube)
     {
         float xSpawnPoint = Random.Range(_minXSpawnPoint, _maxXSpawnPoint);
@@ -20,5 +28,23 @@ public class CubeSpawner : Spawner
 
         cube.gameObject.SetActive(true);
         cube.transform.position = new Vector3(xSpawnPoint, _spawnHeight, zSpawnPoint);
+    }
+
+    protected override void OnReleaseToPool(BaseObject objectUnit)
+    {
+        ObjectDisabled?.Invoke(objectUnit.transform.position);
+        base.OnReleaseToPool(objectUnit);
+    }
+
+    protected IEnumerator SpawnRoutine()
+    {
+        _spawnFrequency = new WaitForSeconds(_spawnRate);
+
+        while (_isSpawnerActive)
+        {
+            _pool.Get();
+
+            yield return _spawnFrequency;
+        }
     }
 }

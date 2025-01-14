@@ -8,15 +8,23 @@ using Random = UnityEngine.Random;
 public abstract class Spawner : MonoBehaviour
 {
     [SerializeField] protected BaseObject _prefab;
-    [SerializeField] protected bool _isSpawnerActive = false;
+    [SerializeField] protected bool _isSpawnerActive = true;
     [SerializeField] protected float _spawnRate = 1f;
     [SerializeField] protected bool _collectionCheck = true;
     [SerializeField] protected int _poolCapacity = 10;
     [SerializeField] protected int _maxPoolSize = 10;
+    [SerializeField] protected float _statisticRefreshmentRate = 0.5f;
 
     protected ObjectPool<BaseObject> _pool;
     protected WaitForSeconds _spawnFrequency;
+    protected WaitForSeconds _refreshmentRate;
     protected List<BaseObject> _objects = new List<BaseObject>();
+
+    public event Action StatiscticUpdated;
+
+    public int _alltimeObjects { get; private set; }
+    public int _createdObjects { get; private set; }
+    public int _activeObjects { get; private set; }
 
     protected void Awake()
     {
@@ -24,7 +32,7 @@ public abstract class Spawner : MonoBehaviour
             _collectionCheck, _poolCapacity, _maxPoolSize);
     }
 
-    protected void OnEnable()
+    protected virtual void OnEnable()
     {
         foreach (var item in _objects)
         {
@@ -32,7 +40,7 @@ public abstract class Spawner : MonoBehaviour
         }
     }
 
-    protected void OnDisable()
+    protected virtual void OnDisable()
     {
         foreach (var item in _objects)
         {
@@ -40,10 +48,9 @@ public abstract class Spawner : MonoBehaviour
         }
     }
 
-    protected void Start()
+    protected virtual void Start()
     {
-        _isSpawnerActive = true;
-        StartCoroutine(SpawnRoutine());
+        StartCoroutine(StatisticRoutine());
     }
 
     protected BaseObject CreateObject()
@@ -51,12 +58,17 @@ public abstract class Spawner : MonoBehaviour
         BaseObject objectInstance = Instantiate(_prefab);
         objectInstance.LifetimeExpired += ReleaseObject;
         _objects.Add(objectInstance);
+
         return objectInstance;
     }
 
-    protected abstract void OnGetFromPool(BaseObject objectUnit);
+    protected virtual void OnGetFromPool(BaseObject objectUnit)
+    {
+        _alltimeObjects++;
+        Debug.Log("Get From Pool");
+    }
 
-    protected void OnReleaseToPool(BaseObject objectUnit)
+    protected virtual void OnReleaseToPool(BaseObject objectUnit)
     {
         objectUnit.gameObject.SetActive(false);
     }
@@ -71,14 +83,17 @@ public abstract class Spawner : MonoBehaviour
         _pool.Release(objectUnit);
     }
 
-    protected IEnumerator SpawnRoutine()
+    private IEnumerator StatisticRoutine()
     {
-        _spawnFrequency = new WaitForSeconds(_spawnRate);
+        _refreshmentRate = new WaitForSeconds(_statisticRefreshmentRate);
 
         while (_isSpawnerActive)
         {
-            _pool.Get();
-            yield return _spawnFrequency;
+            yield return _refreshmentRate;
+
+            _createdObjects = _pool.CountAll;
+            _activeObjects = _pool.CountActive;
+            StatiscticUpdated?.Invoke();
         }
     }
 }

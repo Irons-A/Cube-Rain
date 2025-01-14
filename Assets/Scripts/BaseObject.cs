@@ -21,6 +21,5 @@ public class BaseObject : MonoBehaviour
     protected void CommandRelease(BaseObject objectUnit)
     {
         LifetimeExpired?.Invoke(objectUnit);
-        Debug.Log("Event Called");
     }
 }
