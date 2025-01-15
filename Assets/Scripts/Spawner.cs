@@ -9,7 +9,6 @@ public abstract class Spawner : MonoBehaviour
 {
     [SerializeField] protected BaseObject _prefab;
     [SerializeField] protected bool _isSpawnerActive = true;
-    [SerializeField] protected float _spawnRate = 1f;
     [SerializeField] protected bool _collectionCheck = true;
     [SerializeField] protected int _poolCapacity = 10;
     [SerializeField] protected int _maxPoolSize = 10;
@@ -65,7 +64,6 @@ public abstract class Spawner : MonoBehaviour
     protected virtual void OnGetFromPool(BaseObject objectUnit)
     {
         _alltimeObjects++;
-        Debug.Log("Get From Pool");
     }
 
     protected virtual void OnReleaseToPool(BaseObject objectUnit)

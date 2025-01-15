@@ -22,6 +22,7 @@ public class Bomb : BaseObject
     private void OnEnable()
     {
         StopAllCoroutines();
+        ResetOpacity();
 
         float delay = Random.Range(_minLifetime, _maxLifetime);
         StartCoroutine(DeactivateRoutine(delay));
@@ -80,6 +81,14 @@ public class Bomb : BaseObject
         }
 
         opacity = TargetOpacity;
+        color.a = opacity;
+        _renderer.material.color = color;
+    }
+
+    private void ResetOpacity()
+    {
+        Color color = _renderer.material.color;
+        float opacity = DefaultOpacity;
         color.a = opacity;
         _renderer.material.color = color;
     }

@@ -21,10 +21,12 @@ public class BombSpawner : Spawner
     protected override void OnGetFromPool(BaseObject bomb)
     {
         bomb.gameObject.SetActive(true);
+        base.OnGetFromPool(bomb);
     }
 
     private void SpawnObject(Vector3 targetPosition)
     {
-        _pool.Get(); //???
+        BaseObject bomb = _pool.Get();
+        bomb.transform.position = targetPosition;
     }
 }
