@@ -23,9 +23,6 @@ public class Bomb : BaseObject
     {
         StopAllCoroutines();
 
-        float opacity = _renderer.material.color.a;
-        opacity = DefaultOpacity;
-
         float delay = Random.Range(_minLifetime, _maxLifetime);
         StartCoroutine(DeactivateRoutine(delay));
         StartCoroutine(FadeOutRoutine(delay));
@@ -69,8 +66,21 @@ public class Bomb : BaseObject
 
     private IEnumerator FadeOutRoutine(float delay)
     {
-        Mathf.MoveTowards(_renderer.material.color.a, TargetOpacity, delay);
+        Color color = _renderer.material.color;
+        float opacity = DefaultOpacity;
+        float fadeSpeed = 1f / delay;
 
-        yield return null;
+        while (opacity > TargetOpacity)
+        {
+            opacity -= fadeSpeed * Time.deltaTime;
+            color.a = opacity;
+            _renderer.material.color = color;
+
+            yield return null;
+        }
+
+        opacity = TargetOpacity;
+        color.a = opacity;
+        _renderer.material.color = color;
     }
 }
